@@ -28,6 +28,10 @@ target/
 build/
 !**/src/main/**/build/
 !**/src/test/**/build/
-
+mvnw.cmd
+mvnw
+HELP.md
+.mvn
 ### VS Code ###
 .vscode/
+
