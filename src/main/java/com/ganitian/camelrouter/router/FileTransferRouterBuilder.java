@@ -6,6 +6,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 
+import org.apache.camel.model.rest.RestBindingMode;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -21,22 +22,20 @@ public class FileTransferRouterBuilder extends RouteBuilder {
     @Override
     public void configure() throws Exception {
 
+
         from("file:files/input")
                .log("${body}")
                .process(new Processor() {
                    @Override
                    public void process(Exchange exchange) throws Exception {
 
-                       System.out.println(exchange.getMessage()); // gives filename
-                       System.out.println(
-                               exchange.getMessage().getBody()
-                       );
                        File file = exchange.getIn().getBody(File.class);
                        LOG.info("Processing file: " + file.toString());
                        System.out.println(file.getPath());
                        Gson gson =new Gson();
                    try(Reader reader = new FileReader(file.getPath())){
                        Transaction transaction =gson.fromJson(reader,Transaction.class);
+                       exchange.getIn().setBody(transaction);
                        System.out.println(transaction);
                    }catch (IOException ioException){
                        ioException.getMessage();
@@ -44,7 +43,8 @@ public class FileTransferRouterBuilder extends RouteBuilder {
                    }
 
                })
+                .log("${body}")
+                .to("log:body");
 
-                .to("log: To endpoint integration.");
     }
 }
