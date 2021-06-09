@@ -1,8 +1,13 @@
 package com.ganitian.camelrouter.router;
 
 import com.ganitian.camelrouter.model.Transaction;
+import com.ganitian.camelrouter.processor.DataTransferProcessor;
+import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.jackson.JacksonDataFormat;
+import org.apache.camel.model.dataformat.JsonLibrary;
+import org.apache.camel.model.rest.RestBindingMode;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /*
@@ -25,6 +30,8 @@ public class FileTransferRouterBuilder extends RouteBuilder{
     // JSON Data Format
     JacksonDataFormat jsonDataFormat = new JacksonDataFormat(Transaction.class);
 
+    @Autowired
+    DataTransferProcessor dataTransferProcessor;
 
     @Override
     public void configure() throws Exception {
@@ -36,9 +43,27 @@ public class FileTransferRouterBuilder extends RouteBuilder{
                 .log("${body}")
                 .unmarshal(jsonDataFormat)
                 .log("${body}")
+                .process(dataTransferProcessor)
+                .log("${body}")
+                .marshal(jsonDataFormat)
                // .to("log:Exchange")
-        .to("rest:get:/transaction/all")
+
+        .to("rest:post:/transaction/add")
         .to("log:Exchange From Url");
 
          }
 }
+/*
+  [/dropbox/inputs] route1                                   : {
+  "id": 1000,
+  "from": "USD",
+  "to": "INR",
+  "conversionMultiple": 70
+}
+ INFO 9824 --- [/dropbox/inputs] route1                                   : Transaction(id=1000, from=USD, to=INR, conversionMultiple=70)
+  INFO 9824 --- [/dropbox/inputs] route1                                   : Transaction(id=1000, from=USD-USA, to=INR, conversionMultiple=70)
+  INFO 9824 --- [/dropbox/inputs] Exchange From Url                        : Exchange[ExchangePattern: InOnly, BodyType: byte[], Body: Transaction added successfully.]
+
+ *
+*
+* */
