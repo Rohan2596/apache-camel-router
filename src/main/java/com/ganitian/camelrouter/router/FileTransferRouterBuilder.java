@@ -1,6 +1,8 @@
 package com.ganitian.camelrouter.router;
 
+import com.ganitian.camelrouter.model.Transaction;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.component.jackson.JacksonDataFormat;
 import org.springframework.stereotype.Component;
 
 /*
@@ -20,6 +22,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class FileTransferRouterBuilder extends RouteBuilder{
+    // JSON Data Format
+    JacksonDataFormat jsonDataFormat = new JacksonDataFormat(Transaction.class);
 
 
     @Override
@@ -27,7 +31,9 @@ public class FileTransferRouterBuilder extends RouteBuilder{
 
         from("file:dropbox/inputs")
                 .log("${body}")
-                .to("file:dropbox/outputs");
+                .unmarshal(jsonDataFormat)
+                .log("${body}")
+                .to("log:END");
 
          }
 }
