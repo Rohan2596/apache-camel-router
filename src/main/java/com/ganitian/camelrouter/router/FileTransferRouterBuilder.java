@@ -29,11 +29,16 @@ public class FileTransferRouterBuilder extends RouteBuilder{
     @Override
     public void configure() throws Exception {
 
+        restConfiguration().host("localhost")
+                .port(8081);
+
         from("file:dropbox/inputs")
                 .log("${body}")
                 .unmarshal(jsonDataFormat)
                 .log("${body}")
-                .to("log:END");
+               // .to("log:Exchange")
+        .to("rest:get:/transaction/all")
+        .to("log:Exchange From Url");
 
          }
 }
