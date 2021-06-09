@@ -17,13 +17,17 @@ import org.springframework.stereotype.Component;
 * */
 
 
+
 @Component
-public class FileTransferRouterBuilder extends RouteBuilder {
+public class FileTransferRouterBuilder extends RouteBuilder{
 
 
     @Override
     public void configure() throws Exception {
 
+        from("file:dropbox/inputs")
+                .log("${body}")
+                .to("file:dropbox/outputs");
 
          }
 }
